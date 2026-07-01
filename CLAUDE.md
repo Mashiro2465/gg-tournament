@@ -112,12 +112,13 @@ feat/settlement    ← 정산
 
 ### 브랜치 흐름
 ```
-feat/{기능} → dev → main
+feat/{기능} → (GitHub PR) → dev → (GitHub PR) → main
 ```
 
 ### 규칙
 - 모든 기능 개발은 반드시 feat 브랜치에서 시작
-- feat → dev 병합 전 기능이 정상 동작하는지 확인
+- feat → dev, dev → main 모두 **직접 병합 금지, GitHub PR 생성 후 병합**
+- PR 생성 전 기능이 정상 동작하는지(빌드/테스트) 확인
 - main은 배포 가능한 상태일 때만 병합
 - 새 기능 시작 시 항상 dev에서 브랜치 생성
 
@@ -126,6 +127,18 @@ feat/{기능} → dev → main
 git checkout dev
 git pull origin dev
 git checkout -b feat/{기능명}
+```
+
+### PR 생성 명령어
+```bash
+git push -u origin feat/{기능명}
+gh pr create --base dev --head feat/{기능명} --title "feat: {기능} 구현" --body "..."
+```
+- PR 병합 후에는 로컬 dev를 최신화하고 브랜치 정리
+```bash
+git checkout dev
+git pull origin dev
+git branch -d feat/{기능명}
 ```
 
 ---
@@ -178,6 +191,7 @@ Claude Code는 아래 사항을 절대 하지 않는다.
 - `main` 브랜치에 직접 커밋 금지
 - `dev` 브랜치에 직접 커밋 금지
 - 기능 개발은 반드시 `feat/` 브랜치에서만 진행
+- `feat/` → `dev` 로컬 직접 병합(`git merge`) 금지, 반드시 GitHub PR 생성 후 병합
 
 ### 보안 관련
 - `.env` 파일 Git 커밋 금지
@@ -291,9 +305,9 @@ docker-compose up -d
 git checkout dev
 git checkout -b feat/{기능명}
 
-# 작업 완료 후 dev에 병합
-git checkout dev
-git merge feat/{기능명}
+# 작업 완료 후 PR 생성 (dev로 병합 요청)
+git push -u origin feat/{기능명}
+gh pr create --base dev --head feat/{기능명} --title "feat: {기능} 구현" --body "..."
 ```
 
 ---
@@ -314,7 +328,7 @@ git merge feat/{기능명}
 "CLAUDE.md 예외 처리 규칙대로 ErrorCode에 결제 관련 에러 추가해줘"
 
 # 브랜치 작업 완료
-"feat/auth 작업 완료됐어. dev에 병합하고 다음 브랜치 feat/tournament 만들어줘"
+"feat/auth 작업 완료됐어. dev로 PR 만들고 다음 브랜치 feat/tournament 만들어줘"
 
 # 금지 사항 점검
 "CLAUDE.md 금지 사항 기준으로 현재 코드 점검해줘"
