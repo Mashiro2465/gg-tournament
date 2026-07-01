@@ -1,34 +1,33 @@
-# CLAUDE.md — Claude Code 작업 규칙
+# CLAUDE.md — Claude Code Rules
 
-이 파일은 Claude Code가 프로젝트 작업 시 항상 따라야 할 규칙과 컨벤션을 정의합니다.
-작업 시작 전 반드시 이 파일과 PLAN.md를 함께 참조하세요.
-
----
-
-## 프로젝트 기본 정보
-
-- **프로젝트명**: e스포츠 커뮤니티 대회 플랫폼
-- **언어**: Java 17
-- **프레임워크**: Spring Boot 3.x
-- **빌드 도구**: Gradle
-- **설계 문서**: PLAN.md 참조
+> **Language rule**: All responses, explanations, and comments must be written in Korean (한국어). Code identifiers (class names, method names, variables) follow the naming conventions below in English.
 
 ---
 
-## 로컬 개발 환경
+## Project Info
+
+- **Name**: e-Sports Community Tournament Platform
+- **Language**: Java 17
+- **Framework**: Spring Boot 3.x
+- **Build Tool**: Gradle
+- **Design Doc**: See PLAN.md
+
+---
+
+## Local Dev Environment
 
 - **OS**: Windows
 - **JDK**: 17
 - **IDE**: IntelliJ IDEA Community
-- **터미널**: PowerShell (IntelliJ 내장 터미널)
-- **명령어 주의**: Windows 환경이므로 `./gradlew` 사용, Linux 명령어 사용 금지
+- **Terminal**: PowerShell (IntelliJ built-in terminal)
+- **Note**: Use `./gradlew` on Windows. Do not use Linux-only commands.
 
 ---
 
-## 환경변수 목록 (.env)
+## Environment Variables (.env)
 
-로컬 개발 시 프로젝트 루트에 `.env` 파일 생성 (Git 제외).
-application-local.yml에서 `${VAR:default}` 형식으로 참조.
+Create `.env` in project root (excluded from Git).
+Referenced in `application-local.yml` as `${VAR:default}`.
 
 ```
 # Database
@@ -41,7 +40,7 @@ REDIS_HOST=localhost
 REDIS_PORT=6379
 
 # JWT
-JWT_SECRET=로컬테스트용시크릿키최소32자이상이어야합니다
+JWT_SECRET=localSecretKeyMustBeAtLeast32Characters
 
 # Toss Payments
 TOSS_CLIENT_KEY=test_ck_xxxxx
@@ -61,10 +60,10 @@ S3_REGION=ap-northeast-2
 
 ---
 
-## Docker Compose 설정
+## Docker Compose
 
-로컬 개발 시 MySQL + Redis는 Docker로 실행.
-프로젝트 루트의 `docker-compose.yml` 기준:
+Run MySQL + Redis locally via Docker.
+Reference `docker-compose.yml` in project root:
 
 ```yaml
 services:
@@ -87,149 +86,130 @@ volumes:
   mysql-data:
 ```
 
-실행 명령어:
 ```bash
-docker-compose up -d    # 백그라운드 실행
-docker-compose down     # 종료
-docker-compose logs -f  # 로그 확인
+docker-compose up -d    # start background
+docker-compose down     # stop
+docker-compose logs -f  # view logs
 ```
 
 ---
 
-## 브랜치 전략
+## Branch Strategy
 
-### 브랜치 구조
+### Structure
 ```
-main               ← 최종 완성본 (항상 실행 가능한 상태 유지)
-dev                ← 개발 통합 브랜치
-feat/auth          ← 회원/인증
-feat/tournament    ← 대회 CRUD
-feat/participant   ← 참가 신청
-feat/payment       ← 결제
-feat/bracket       ← 대진표
-feat/settlement    ← 정산
-```
-
-### 브랜치 흐름
-```
-feat/{기능} → (GitHub PR) → dev → (GitHub PR) → main
+main               ← production-ready only
+dev                ← integration branch
+feat/auth          ← authentication
+feat/tournament    ← tournament CRUD
+feat/participant   ← participation
+feat/payment       ← payment
+feat/bracket       ← bracket
+feat/settlement    ← settlement
 ```
 
-### 규칙
-- 모든 기능 개발은 반드시 feat 브랜치에서 시작
-- feat → dev, dev → main 모두 **직접 병합 금지, GitHub PR 생성 후 병합**
-- PR 생성 전 기능이 정상 동작하는지(빌드/테스트) 확인
-- main은 배포 가능한 상태일 때만 병합
-- 새 기능 시작 시 항상 dev에서 브랜치 생성
+### Flow
+```
+feat/{name} → (GitHub PR) → dev → (GitHub PR) → main
+```
 
-### 브랜치 생성 명령어
+### Rules
+- All feature work must start from a `feat/` branch
+- Never commit directly to `main` or `dev`
+- Always branch from latest `dev`
+- Create GitHub PR when feat branch is complete; do not merge locally
+
+### Branch creation
 ```bash
 git checkout dev
 git pull origin dev
-git checkout -b feat/{기능명}
-```
-
-### PR 생성 명령어
-```bash
-git push -u origin feat/{기능명}
-gh pr create --base dev --head feat/{기능명} --title "feat: {기능} 구현" --body "..."
-```
-- PR 병합 후에는 로컬 dev를 최신화하고 브랜치 정리
-```bash
-git checkout dev
-git pull origin dev
-git branch -d feat/{기능명}
+git checkout -b feat/{name}
 ```
 
 ---
 
-## 코딩 컨벤션
+## Coding Conventions
 
-### 네이밍
-- 클래스: `PascalCase` (예: `TournamentService`)
-- 메서드 / 변수: `camelCase` (예: `findByTournamentId`)
-- 상수: `UPPER_SNAKE_CASE` (예: `MAX_PARTICIPANTS`)
-- 테이블 / 컬럼: `snake_case` (예: `tournament_id`)
-- URL: `kebab-case` (예: `/api/tournaments/{id}/participants`)
+### Naming
+- Class: `PascalCase` (e.g. `TournamentService`)
+- Method / Variable: `camelCase` (e.g. `findByTournamentId`)
+- Constant: `UPPER_SNAKE_CASE` (e.g. `MAX_PARTICIPANTS`)
+- Table / Column: `snake_case` (e.g. `tournament_id`)
+- URL: `kebab-case` (e.g. `/api/tournaments/{id}/participants`)
 
-### 패키지 구조 (도메인 중심)
+### Package Structure (domain-driven)
 ```
 com.esports.platform.
-├── domain.{도메인}.entity
-├── domain.{도메인}.repository
-├── domain.{도메인}.service
-├── domain.{도메인}.controller
-├── domain.{도메인}.dto
-└── global.{공통모듈}
+├── domain.{domain}.entity
+├── domain.{domain}.repository
+├── domain.{domain}.service
+├── domain.{domain}.controller
+├── domain.{domain}.dto
+└── global.{shared}
 ```
 
-### DTO 규칙
-- 요청: `{기능}Request` (예: `CreateTournamentRequest`)
-- 응답: `{기능}Response` (예: `TournamentDetailResponse`)
-- DTO는 record 또는 @Getter + @Builder 사용
-- Entity를 Controller까지 노출하지 않음 (반드시 DTO 변환)
+### DTO Rules
+- Request: `{Action}Request` (e.g. `CreateTournamentRequest`)
+- Response: `{Subject}Response` (e.g. `TournamentDetailResponse`)
+- Use `record` or `@Getter + @Builder`
+- Never expose Entity beyond Service layer — always convert to DTO
 
-### Entity 규칙
-- 모든 Entity는 `BaseTimeEntity` 상속 (`createdAt`, `updatedAt` 자동 관리)
-- Setter 사용 금지 → 비즈니스 메서드로 상태 변경
-- 연관관계 편의 메서드 Entity 내부에 작성
-
----
-
-## ⛔ 절대 금지 사항
-
-Claude Code는 아래 사항을 절대 하지 않는다.
-
-### 코드 관련
-- Entity에 `@Setter` 또는 `setter` 메서드 작성 금지
-- Controller에서 Entity 직접 반환 금지 (반드시 DTO 변환)
-- 비즈니스 로직을 Controller에 작성 금지 (Service에서 처리)
-- `System.out.println` 사용 금지 (로그는 `@Slf4j` + `log.info()` 사용)
-- 결제 금액을 클라이언트 값 그대로 신뢰 금지 (서버에서 재검증 필수)
-
-### Git 관련
-- `main` 브랜치에 직접 커밋 금지
-- `dev` 브랜치에 직접 커밋 금지
-- 기능 개발은 반드시 `feat/` 브랜치에서만 진행
-- `feat/` → `dev` 로컬 직접 병합(`git merge`) 금지, 반드시 GitHub PR 생성 후 병합
-
-### 보안 관련
-- `.env` 파일 Git 커밋 금지
-- 시크릿 키, 비밀번호를 코드에 하드코딩 금지
-- JWT 검증 없이 인증 필요 API 접근 허용 금지
+### Entity Rules
+- All entities extend `BaseTimeEntity` (`createdAt`, `updatedAt` auto-managed)
+- No setters — use business methods for state changes
+- Define relationship convenience methods inside the entity
 
 ---
 
-## 작업 규칙
+## ⛔ Forbidden
 
-### 코드 작성 원칙
-- 한 번에 하나의 도메인만 작업
-- 작업 순서: Entity → Repository → Service → Controller → DTO 순으로 작성
-- 새 기능 시작 전 항상 PLAN.md의 해당 섹션 확인
-- 새 기능 시작 시 항상 feat 브랜치 먼저 생성 후 작업
-- 기존 코드 수정 시 영향 범위 먼저 파악 후 진행
+### Code
+- No `@Setter` or setter methods on Entity classes
+- Never return Entity directly from Controller — always use DTO
+- No business logic in Controller — belongs in Service
+- No `System.out.println` — use `@Slf4j` + `log.info()`
+- Never trust client-side payment amount — always re-validate on server
 
-### 예외 처리
-- 모든 예외는 `ErrorCode` enum으로 관리
-- 커스텀 예외: `BusinessException(ErrorCode)` 단일 클래스 사용
-- `GlobalExceptionHandler`에서 일괄 처리
-- 예외 메시지는 한국어로 작성
+### Git
+- No direct commits to `main`
+- No direct commits to `dev`
+- All feature work must be on `feat/` branches only
+
+### Security
+- Never commit `.env` to Git
+- Never hardcode secrets or passwords in source code
+- Never allow access to authenticated APIs without JWT verification
+
+---
+
+## Work Rules
+
+### Order of implementation
+1. Entity → Repository → Service → Controller → DTO
+2. One domain at a time
+3. Always check the relevant section in PLAN.md before starting a new feature
+4. Always create a `feat/` branch before writing any code
+
+### Exception Handling
+- All errors managed via `ErrorCode` enum
+- Single custom exception class: `BusinessException(ErrorCode)`
+- Handled globally by `GlobalExceptionHandler`
+- Error messages written in Korean
 
 ```java
-// 예시
 throw new BusinessException(ErrorCode.TOURNAMENT_NOT_FOUND);
 ```
 
-### API 응답 형식
-모든 API는 아래 형식으로 통일:
+### API Response Format
+Success:
 ```json
 {
   "success": true,
-  "data": { },
+  "data": {},
   "message": "요청이 처리되었습니다"
 }
 ```
-실패 시:
+Failure:
 ```json
 {
   "success": false,
@@ -238,42 +218,41 @@ throw new BusinessException(ErrorCode.TOURNAMENT_NOT_FOUND);
 }
 ```
 
-### 보안 규칙
-- 인증이 필요한 API는 `@AuthenticationPrincipal UserPrincipal user` 사용
-- 권한 체크: 대회 수정/삭제는 주최자 본인 확인 필수
-- 비밀번호: BCrypt 암호화
-- JWT: Access Token 30분, Refresh Token 7일
-- 토스 웹훅: JWT 없이 `X-Toss-Signature` 헤더 검증
+### Security Rules
+- Use `@AuthenticationPrincipal UserPrincipal user` for authenticated APIs
+- Verify host ownership before tournament update/delete
+- Passwords: BCrypt
+- JWT: Access Token 30min, Refresh Token 7 days
+- Toss webhook: no JWT — verify via `X-Toss-Signature` header
 
-### Redis 사용 규칙
-- 분산 락 키: `lock:tournament:{tournamentId}`
-- 락 타임아웃: 3초
-- JWT 블랙리스트 키: `blacklist:token:{token}`
-- 블랙리스트 TTL: Access Token 남은 만료 시간
+### Redis Rules
+- Distributed lock key: `lock:tournament:{tournamentId}`
+- Lock timeout: 3 seconds
+- JWT blacklist key: `blacklist:token:{token}`
+- Blacklist TTL: remaining Access Token expiry time
 
-### 결제 규칙
-- 결제 금액은 항상 서버에서 재검증 (클라이언트 금액 신뢰 금지)
-- `orderId` = `TOURNAMENT_{tournamentId}_{userId}_{timestamp}` 형식
-- 웹훅 처리는 멱등성 보장 (중복 처리 방지)
+### Payment Rules
+- Always re-validate payment amount on server side
+- `orderId` format: `TOURNAMENT_{tournamentId}_{userId}_{timestamp}`
+- Webhook processing must be idempotent (prevent duplicate handling)
 
 ---
 
-## 테스트 규칙
+## Test Rules
 
-- Service 레이어 단위 테스트 필수 (Mockito 사용)
-- Repository 레이어 슬라이스 테스트 (@DataJpaTest)
-- 테스트 클래스명: `{클래스명}Test`
-- 테스트 메서드명: `{메서드명}_{시나리오}_{기대결과}` (한국어 가능)
+- Unit tests required for Service layer (Mockito)
+- Slice tests for Repository layer (`@DataJpaTest`)
+- Test class name: `{ClassName}Test`
+- Test method name: `{method}_{scenario}_{expectedResult}` (Korean allowed)
 
 ```java
-// 예시
 @Test
 void 참가신청_정원초과시_예외발생() { }
 ```
 
 ---
 
-## Git 커밋 규칙
+## Git Commit Format
 
 ```
 feat: 대회 생성 API 구현
@@ -286,76 +265,76 @@ chore: application.yml 설정 추가
 
 ---
 
-## 자주 쓰는 명령어
+## Common Commands
 
 ```bash
-# 로컬 실행
+# Run locally
 ./gradlew bootRun
 
-# 테스트 실행
+# Run tests
 ./gradlew test
 
-# 빌드
+# Build
 ./gradlew build
 
-# Docker 실행 (MySQL + Redis)
+# Start Docker (MySQL + Redis)
 docker-compose up -d
 
-# 브랜치 생성
+# Create branch
 git checkout dev
-git checkout -b feat/{기능명}
+git checkout -b feat/{name}
 
-# 작업 완료 후 PR 생성 (dev로 병합 요청)
-git push -u origin feat/{기능명}
-gh pr create --base dev --head feat/{기능명} --title "feat: {기능} 구현" --body "..."
+# Push feat branch and open PR
+git push origin feat/{name}
+# Then create PR on GitHub: feat/{name} → dev
 ```
 
 ---
 
-## Claude Code에게 요청하는 방법
+## How to prompt Claude Code
 
 ```
-# 새 도메인 작업 시작 (브랜치 생성부터)
-"PLAN.md 개발 순서 2번 회원/인증 시작해줘. feat/auth 브랜치 만들고 CLAUDE.md 컨벤션 따라서 Entity부터 만들어줘"
+# Start new domain
+"PLAN.md 개발 순서 4번 참가 신청 시작해줘. feat/participant 브랜치 만들고 Entity부터."
 
-# 특정 기능 구현
-"CLAUDE.md 규칙대로 참가 신청 서비스에 Redis 분산 락 적용해줘"
+# Specific feature
+"CLAUDE.md Redis 규칙대로 분산 락 적용해줘."
 
-# 코드 리뷰
-"CLAUDE.md 컨벤션 기준으로 이 코드 리뷰해줘"
+# Code review
+"CLAUDE.md 컨벤션 기준으로 이 코드 리뷰해줘."
 
-# 예외 처리 추가
-"CLAUDE.md 예외 처리 규칙대로 ErrorCode에 결제 관련 에러 추가해줘"
-
-# 브랜치 작업 완료
-"feat/auth 작업 완료됐어. dev로 PR 만들고 다음 브랜치 feat/tournament 만들어줘"
-
-# 금지 사항 점검
-"CLAUDE.md 금지 사항 기준으로 현재 코드 점검해줘"
+# After feat branch complete
+"feat/participant 작업 완료. origin에 push하고 CLAUDE.md 진행 상태 업데이트해줘."
 ```
 
 ---
 
-## 현재 진행 상태
+## Current Progress
 
-작업 완료 시마다 "CLAUDE.md 진행 상태 업데이트해줘" 로 갱신.
+Update this section by asking: "CLAUDE.md 진행 상태 업데이트해줘"
 
-### 완료
-- [x] 프로젝트 세팅 (build.gradle, application.yml)
-- [x] 패키지 구조 생성
-- [x] 공통 클래스 (BaseTimeEntity, ApiResponse, ErrorCode, BusinessException, GlobalExceptionHandler)
-- [x] 개발 순서 2번: 회원/인증 (feat/auth → dev 병합 완료)
-  - User 엔티티, UserRepository, UserService
-  - JWT 인증 인프라 (JwtProvider, JwtAuthenticationFilter, UserPrincipal, TokenBlacklistService, SecurityConfig)
-  - AuthController (회원가입/로그인/토큰재발급/로그아웃), UserController (내 정보 조회/수정)
-  - 카카오 소셜 로그인(`POST /api/auth/kakao`)은 미구현 — 추후 별도 작업
+### Done
+- [x] Project setup (build.gradle, application.yml)
+- [x] Package structure
+- [x] Global classes (BaseTimeEntity, ApiResponse, ErrorCode, BusinessException, GlobalExceptionHandler)
+- [x] Auth domain (feat/auth → dev merged)
+  - JWT infra (JwtProvider, JwtAuthenticationFilter, UserPrincipal, TokenBlacklistService, SecurityConfig)
+  - AuthController (signup/login/token-refresh/logout), UserController (GET/PUT /api/users/me)
+  - Kakao login (`POST /api/auth/kakao`) — deferred
+- [x] Tournament CRUD (feat/tournament → dev merged)
+  - Tournament entity, TournamentRepository (QueryDSL dynamic search)
+  - TournamentService (host validation, status transition), TournamentController
+  - SecurityConfig: GET /api/tournaments/** permit all
+- [x] Participation (feat/participant)
+  - TournamentParticipant entity (unique constraint on tournament_id+user_id), TournamentParticipantRepository
+  - TournamentParticipantService with Redis distributed lock (Redisson, `lock:tournament:{tournamentId}`, 3s wait/lease) for join, plain cancel
+  - TournamentParticipantController (GET participants, POST join, DELETE /me cancel)
+  - Refund on cancel is deferred — depends on Payment domain
 
-### 진행 중
-- [ ] 개발 순서 3번: 대회 CRUD (feat/tournament)
+### In Progress
+- [ ] Payment (feat/payment)
 
-### 대기
-- [ ] 개발 순서 4번: 참가 신청 (feat/participant)
-- [ ] 개발 순서 5번: 결제 (feat/payment)
-- [ ] 개발 순서 6번: 대진표 (feat/bracket)
-- [ ] 개발 순서 7번: 정산 (feat/settlement)
-- [ ] 개발 순서 8번: 배포
+### Pending
+- [ ] Bracket (feat/bracket)
+- [ ] Settlement (feat/settlement)
+- [ ] Deployment
