@@ -8,6 +8,7 @@ import com.esports.platform.global.auth.TokenBlacklistService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -48,6 +49,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PERMIT_ALL_PATHS).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/tournaments/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
