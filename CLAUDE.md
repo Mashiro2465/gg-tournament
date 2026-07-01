@@ -330,12 +330,16 @@ git merge feat/{기능명}
 - [x] 프로젝트 세팅 (build.gradle, application.yml)
 - [x] 패키지 구조 생성
 - [x] 공통 클래스 (BaseTimeEntity, ApiResponse, ErrorCode, BusinessException, GlobalExceptionHandler)
+- [x] 개발 순서 2번: 회원/인증 (feat/auth → dev 병합 완료)
+  - User 엔티티, UserRepository, UserService
+  - JWT 인증 인프라 (JwtProvider, JwtAuthenticationFilter, UserPrincipal, TokenBlacklistService, SecurityConfig)
+  - AuthController (회원가입/로그인/토큰재발급/로그아웃), UserController (내 정보 조회/수정)
+  - 카카오 소셜 로그인(`POST /api/auth/kakao`)은 미구현 — 추후 별도 작업
 
 ### 진행 중
-- [ ] 개발 순서 2번: 회원/인증 (feat/auth)
+- [ ] 개발 순서 3번: 대회 CRUD (feat/tournament)
 
 ### 대기
-- [ ] 개발 순서 3번: 대회 CRUD (feat/tournament)
 - [ ] 개발 순서 4번: 참가 신청 (feat/participant)
 - [ ] 개발 순서 5번: 결제 (feat/payment)
 - [ ] 개발 순서 6번: 대진표 (feat/bracket)
