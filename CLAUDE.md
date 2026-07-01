@@ -15,6 +15,121 @@
 
 ---
 
+## 로컬 개발 환경
+
+- **OS**: Windows
+- **JDK**: 17
+- **IDE**: IntelliJ IDEA Community
+- **터미널**: PowerShell (IntelliJ 내장 터미널)
+- **명령어 주의**: Windows 환경이므로 `./gradlew` 사용, Linux 명령어 사용 금지
+
+---
+
+## 환경변수 목록 (.env)
+
+로컬 개발 시 프로젝트 루트에 `.env` 파일 생성 (Git 제외).
+application-local.yml에서 `${VAR:default}` 형식으로 참조.
+
+```
+# Database
+DB_URL=jdbc:mysql://localhost:3306/esports
+DB_USERNAME=root
+DB_PASSWORD=1234
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# JWT
+JWT_SECRET=로컬테스트용시크릿키최소32자이상이어야합니다
+
+# Toss Payments
+TOSS_CLIENT_KEY=test_ck_xxxxx
+TOSS_SECRET_KEY=test_sk_xxxxx
+
+# Kakao OAuth2
+KAKAO_CLIENT_ID=xxxxx
+KAKAO_CLIENT_SECRET=xxxxx
+KAKAO_REDIRECT_URI=http://localhost:8080/api/auth/kakao
+
+# AWS S3
+AWS_ACCESS_KEY=xxxxx
+AWS_SECRET_KEY=xxxxx
+S3_BUCKET_NAME=esports-platform-bucket
+S3_REGION=ap-northeast-2
+```
+
+---
+
+## Docker Compose 설정
+
+로컬 개발 시 MySQL + Redis는 Docker로 실행.
+프로젝트 루트의 `docker-compose.yml` 기준:
+
+```yaml
+services:
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: esports
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  redis:
+    image: redis:7.0
+    ports:
+      - "6379:6379"
+
+volumes:
+  mysql-data:
+```
+
+실행 명령어:
+```bash
+docker-compose up -d    # 백그라운드 실행
+docker-compose down     # 종료
+docker-compose logs -f  # 로그 확인
+```
+
+---
+
+## 브랜치 전략
+
+### 브랜치 구조
+```
+main               ← 최종 완성본 (항상 실행 가능한 상태 유지)
+dev                ← 개발 통합 브랜치
+feat/auth          ← 회원/인증
+feat/tournament    ← 대회 CRUD
+feat/participant   ← 참가 신청
+feat/payment       ← 결제
+feat/bracket       ← 대진표
+feat/settlement    ← 정산
+```
+
+### 브랜치 흐름
+```
+feat/{기능} → dev → main
+```
+
+### 규칙
+- 모든 기능 개발은 반드시 feat 브랜치에서 시작
+- feat → dev 병합 전 기능이 정상 동작하는지 확인
+- main은 배포 가능한 상태일 때만 병합
+- 새 기능 시작 시 항상 dev에서 브랜치 생성
+
+### 브랜치 생성 명령어
+```bash
+git checkout dev
+git pull origin dev
+git checkout -b feat/{기능명}
+```
+
+---
+
 ## 코딩 컨벤션
 
 ### 네이밍
@@ -26,7 +141,7 @@
 
 ### 패키지 구조 (도메인 중심)
 ```
-com.esports.
+com.esports.platform.
 ├── domain.{도메인}.entity
 ├── domain.{도메인}.repository
 ├── domain.{도메인}.service
@@ -48,12 +163,36 @@ com.esports.
 
 ---
 
+## ⛔ 절대 금지 사항
+
+Claude Code는 아래 사항을 절대 하지 않는다.
+
+### 코드 관련
+- Entity에 `@Setter` 또는 `setter` 메서드 작성 금지
+- Controller에서 Entity 직접 반환 금지 (반드시 DTO 변환)
+- 비즈니스 로직을 Controller에 작성 금지 (Service에서 처리)
+- `System.out.println` 사용 금지 (로그는 `@Slf4j` + `log.info()` 사용)
+- 결제 금액을 클라이언트 값 그대로 신뢰 금지 (서버에서 재검증 필수)
+
+### Git 관련
+- `main` 브랜치에 직접 커밋 금지
+- `dev` 브랜치에 직접 커밋 금지
+- 기능 개발은 반드시 `feat/` 브랜치에서만 진행
+
+### 보안 관련
+- `.env` 파일 Git 커밋 금지
+- 시크릿 키, 비밀번호를 코드에 하드코딩 금지
+- JWT 검증 없이 인증 필요 API 접근 허용 금지
+
+---
+
 ## 작업 규칙
 
 ### 코드 작성 원칙
 - 한 번에 하나의 도메인만 작업
 - 작업 순서: Entity → Repository → Service → Controller → DTO 순으로 작성
 - 새 기능 시작 전 항상 PLAN.md의 해당 섹션 확인
+- 새 기능 시작 시 항상 feat 브랜치 먼저 생성 후 작업
 - 기존 코드 수정 시 영향 범위 먼저 파악 후 진행
 
 ### 예외 처리
@@ -133,20 +272,6 @@ chore: application.yml 설정 추가
 
 ---
 
-## application.yml 구조
-
-```yaml
-spring:
-  profiles:
-    active: local  # local / prod
-
-# 민감 정보는 환경변수로 관리
-# JWT_SECRET, TOSS_SECRET_KEY, KAKAO_CLIENT_ID 등
-# .env 파일 사용 (Git 제외)
-```
-
----
-
 ## 자주 쓰는 명령어
 
 ```bash
@@ -161,6 +286,14 @@ spring:
 
 # Docker 실행 (MySQL + Redis)
 docker-compose up -d
+
+# 브랜치 생성
+git checkout dev
+git checkout -b feat/{기능명}
+
+# 작업 완료 후 dev에 병합
+git checkout dev
+git merge feat/{기능명}
 ```
 
 ---
@@ -168,8 +301,8 @@ docker-compose up -d
 ## Claude Code에게 요청하는 방법
 
 ```
-# 새 도메인 작업 시작
-"PLAN.md 개발 순서 3번 대회 CRUD 시작해줘. CLAUDE.md 컨벤션 따라서 Entity부터 만들어줘"
+# 새 도메인 작업 시작 (브랜치 생성부터)
+"PLAN.md 개발 순서 2번 회원/인증 시작해줘. feat/auth 브랜치 만들고 CLAUDE.md 컨벤션 따라서 Entity부터 만들어줘"
 
 # 특정 기능 구현
 "CLAUDE.md 규칙대로 참가 신청 서비스에 Redis 분산 락 적용해줘"
@@ -179,4 +312,32 @@ docker-compose up -d
 
 # 예외 처리 추가
 "CLAUDE.md 예외 처리 규칙대로 ErrorCode에 결제 관련 에러 추가해줘"
+
+# 브랜치 작업 완료
+"feat/auth 작업 완료됐어. dev에 병합하고 다음 브랜치 feat/tournament 만들어줘"
+
+# 금지 사항 점검
+"CLAUDE.md 금지 사항 기준으로 현재 코드 점검해줘"
 ```
+
+---
+
+## 현재 진행 상태
+
+작업 완료 시마다 "CLAUDE.md 진행 상태 업데이트해줘" 로 갱신.
+
+### 완료
+- [x] 프로젝트 세팅 (build.gradle, application.yml)
+- [x] 패키지 구조 생성
+- [x] 공통 클래스 (BaseTimeEntity, ApiResponse, ErrorCode, BusinessException, GlobalExceptionHandler)
+
+### 진행 중
+- [ ] 개발 순서 2번: 회원/인증 (feat/auth)
+
+### 대기
+- [ ] 개발 순서 3번: 대회 CRUD (feat/tournament)
+- [ ] 개발 순서 4번: 참가 신청 (feat/participant)
+- [ ] 개발 순서 5번: 결제 (feat/payment)
+- [ ] 개발 순서 6번: 대진표 (feat/bracket)
+- [ ] 개발 순서 7번: 정산 (feat/settlement)
+- [ ] 개발 순서 8번: 배포
