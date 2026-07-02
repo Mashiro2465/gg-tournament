@@ -340,10 +340,17 @@ Update this section by asking: "CLAUDE.md 진행 상태 업데이트해줘"
   - SecurityConfig: POST /api/payments/webhook permit all (verified via signature, not JWT)
   - PaymentServiceTest (14 cases)
 
+- [x] Bracket (feat/bracket)
+  - Match entity (participant1/2/winner nullable, round+matchNumber), MatchStatus, MatchRepository
+  - MatchService: generateBracket (shuffle seed, next-power-of-two bracket size, bye handling, bulk round-1 creation), recordResult (host-only, records winner + auto-advances to next round), advanceWinner shared by both paths; finishes the tournament when the final round's only match completes
+  - TournamentParticipantRepository: added findByTournamentIdAndStatus (CONFIRMED-only seeding)
+  - TournamentController's existing POST /api/tournaments/{id}/start now calls MatchService.generateBracket() (no separate endpoint) and returns the generated round-1 matches
+  - MatchController (`PUT /api/matches/{id}/result`), TournamentBracketController (`GET /api/tournaments/{id}/bracket`, covered by the existing GET permitAll rule)
+  - MatchServiceTest (11 cases); fixed a bug found while testing — generateBracket now defensively copies the participant list before Collections.shuffle (repository could return an immutable list)
+
 ### In Progress
 (none)
 
 ### Pending
-- [ ] Bracket (feat/bracket)
 - [ ] Settlement (feat/settlement)
 - [ ] Deployment
