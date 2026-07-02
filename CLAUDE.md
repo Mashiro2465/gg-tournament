@@ -325,7 +325,7 @@ Update this section by asking: "CLAUDE.md 진행 상태 업데이트해줘"
   - Tournament entity, TournamentRepository (QueryDSL dynamic search)
   - TournamentService (host validation, status transition), TournamentController
   - SecurityConfig: GET /api/tournaments/** permit all
-- [x] Participation (feat/participant)
+- [x] Participation (feat/participant → dev merged)
   - TournamentParticipant entity (unique constraint on tournament_id+user_id), TournamentParticipantRepository
   - TournamentParticipantService with Redis distributed lock (Redisson, `lock:tournament:{tournamentId}`, 3s wait/lease) for join, plain cancel
   - TournamentParticipantController (GET participants, POST join, DELETE /me cancel)
