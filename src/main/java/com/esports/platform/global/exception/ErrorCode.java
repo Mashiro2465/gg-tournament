@@ -43,7 +43,16 @@ public enum ErrorCode {
     PAYMENT_NOT_CONFIRMED(HttpStatus.BAD_REQUEST, "확정되지 않은 결제는 환불할 수 없습니다."),
     PAYMENT_CONFIRM_FAILED(HttpStatus.BAD_GATEWAY, "결제 승인에 실패했습니다."),
     PAYMENT_CANCEL_FAILED(HttpStatus.BAD_GATEWAY, "결제 취소(환불)에 실패했습니다."),
-    INVALID_TOSS_SIGNATURE(HttpStatus.UNAUTHORIZED, "유효하지 않은 웹훅 서명입니다.");
+    INVALID_TOSS_SIGNATURE(HttpStatus.UNAUTHORIZED, "유효하지 않은 웹훅 서명입니다."),
+
+    // Match
+    MATCH_NOT_FOUND(HttpStatus.NOT_FOUND, "경기를 찾을 수 없습니다."),
+    MATCH_ALREADY_FINISHED(HttpStatus.BAD_REQUEST, "이미 종료된 경기입니다."),
+    MATCH_INVALID_WINNER(HttpStatus.BAD_REQUEST, "해당 경기의 참가자만 승자로 지정할 수 있습니다."),
+
+    // Bracket
+    BRACKET_ALREADY_GENERATED(HttpStatus.CONFLICT, "이미 대진표가 생성된 대회입니다."),
+    BRACKET_NOT_ENOUGH_PARTICIPANTS(HttpStatus.BAD_REQUEST, "대진표를 생성하려면 최소 2명의 참가자가 필요합니다.");
 
     private final HttpStatus status;
     private final String message;

@@ -1,5 +1,8 @@
 package com.esports.platform.domain.tournament.controller;
 
+import com.esports.platform.domain.bracket.dto.MatchResponse;
+import com.esports.platform.domain.bracket.entity.Match;
+import com.esports.platform.domain.bracket.service.MatchService;
 import com.esports.platform.domain.tournament.dto.CreateTournamentRequest;
 import com.esports.platform.domain.tournament.dto.TournamentDetailResponse;
 import com.esports.platform.domain.tournament.dto.TournamentSummaryResponse;
@@ -13,6 +16,7 @@ import com.esports.platform.global.auth.UserPrincipal;
 import com.esports.platform.global.common.ApiResponse;
 import com.esports.platform.global.common.PageResponse;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,6 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TournamentController {
 
     private final TournamentService tournamentService;
+    private final MatchService matchService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<TournamentSummaryResponse>>> search(
@@ -104,11 +109,12 @@ public class TournamentController {
     }
 
     @PostMapping("/{id}/start")
-    public ResponseEntity<ApiResponse<Void>> start(
+    public ResponseEntity<ApiResponse<List<MatchResponse>>> start(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Long id
     ) {
-        tournamentService.start(id, userPrincipal.getId());
-        return ResponseEntity.ok(ApiResponse.success(null, "대회가 시작되었습니다"));
+        List<Match> firstRoundMatches = matchService.generateBracket(id, userPrincipal.getId());
+        List<MatchResponse> responses = firstRoundMatches.stream().map(MatchResponse::from).toList();
+        return ResponseEntity.ok(ApiResponse.success(responses, "대회가 시작되었습니다"));
     }
 }

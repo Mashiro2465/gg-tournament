@@ -10,6 +10,8 @@ public interface TournamentParticipantRepository extends JpaRepository<Tournamen
 
     List<TournamentParticipant> findByTournamentId(Long tournamentId);
 
+    List<TournamentParticipant> findByTournamentIdAndStatus(Long tournamentId, ParticipantStatus status);
+
     Optional<TournamentParticipant> findByTournamentIdAndUserId(Long tournamentId, Long userId);
 
     boolean existsByTournamentIdAndUserIdAndStatusNot(Long tournamentId, Long userId, ParticipantStatus status);
