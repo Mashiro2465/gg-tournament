@@ -349,8 +349,7 @@ Update this section by asking: "CLAUDE.md 진행 상태 업데이트해줘"
   - MatchServiceTest (11 cases); fixed a bug found while testing — generateBracket now defensively copies the participant list before Collections.shuffle (repository could return an immutable list)
 
 ### In Progress
-(none)
+- [ ] Settlement (feat/settlement)
 
 ### Pending
-- [ ] Settlement (feat/settlement)
 - [ ] Deployment
