@@ -325,14 +325,23 @@ Update this section by asking: "CLAUDE.md 진행 상태 업데이트해줘"
   - Tournament entity, TournamentRepository (QueryDSL dynamic search)
   - TournamentService (host validation, status transition), TournamentController
   - SecurityConfig: GET /api/tournaments/** permit all
-- [x] Participation (feat/participant)
+- [x] Participation (feat/participant → dev merged)
   - TournamentParticipant entity (unique constraint on tournament_id+user_id), TournamentParticipantRepository
   - TournamentParticipantService with Redis distributed lock (Redisson, `lock:tournament:{tournamentId}`, 3s wait/lease) for join, plain cancel
   - TournamentParticipantController (GET participants, POST join, DELETE /me cancel)
   - Refund on cancel is deferred — depends on Payment domain
 
+- [x] Payment (feat/payment)
+  - Payment entity (order_id unique), PaymentRepository, PaymentStatus
+  - TossPaymentClient (RestClient, Basic Auth) — real confirm/cancel API calls to Toss
+  - PaymentExecutor: separates read/validate and final DB commit into short transactions so no DB transaction stays open during the Toss HTTP call (same reasoning as ParticipantJoinExecutor)
+  - PaymentService: preparePayment (orderId issuance), confirmPayment (server-side amount re-validation), handleWebhook (HMAC-SHA256 signature verification, idempotent), refund
+  - PaymentController (`/api/payments`: confirm/webhook/refund/get), TournamentPaymentController (`/api/tournaments/{id}/payments` prepare — not in PLAN.md's list but needed before the client can open the Toss widget)
+  - SecurityConfig: POST /api/payments/webhook permit all (verified via signature, not JWT)
+  - PaymentServiceTest (14 cases)
+
 ### In Progress
-- [ ] Payment (feat/payment)
+(none)
 
 ### Pending
 - [ ] Bracket (feat/bracket)
