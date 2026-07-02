@@ -27,7 +27,8 @@ public class SecurityConfig {
             "/api/auth/signup",
             "/api/auth/login",
             "/api/auth/kakao",
-            "/api/auth/refresh"
+            "/api/auth/refresh",
+            "/api/payments/webhook"
     };
 
     private final UserService userService;
