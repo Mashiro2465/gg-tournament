@@ -50,6 +50,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PERMIT_ALL_PATHS).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/tournaments/*/settlements").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/tournaments/**").permitAll()
                         .anyRequest().authenticated()
                 )
