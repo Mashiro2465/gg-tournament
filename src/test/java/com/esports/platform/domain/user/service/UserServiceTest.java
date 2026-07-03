@@ -3,6 +3,8 @@ package com.esports.platform.domain.user.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.esports.platform.domain.user.entity.User;
@@ -72,6 +74,29 @@ class UserServiceTest {
                 .isInstanceOf(BusinessException.class)
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.INVALID_PASSWORD);
+    }
+
+    @Test
+    void 카카오회원조회_이미가입된카카오id면_기존회원반환() {
+        User existing = User.createKakaoUser("kakao@example.com", "닉네임", null, "kakao-id-1");
+        when(userRepository.findByKakaoId("kakao-id-1")).thenReturn(Optional.of(existing));
+
+        User result = userService.findOrCreateKakaoUser("kakao-id-1", "kakao@example.com", "닉네임", null);
+
+        assertThat(result).isEqualTo(existing);
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void 카카오회원조회_신규카카오id면_회원가입후반환() {
+        when(userRepository.findByKakaoId("kakao-id-2")).thenReturn(Optional.empty());
+        User saved = User.createKakaoUser("kakao2@example.com", "닉네임2", "http://image.url", "kakao-id-2");
+        when(userRepository.save(any(User.class))).thenReturn(saved);
+
+        User result = userService.findOrCreateKakaoUser("kakao-id-2", "kakao2@example.com", "닉네임2", "http://image.url");
+
+        assertThat(result).isEqualTo(saved);
+        verify(userRepository).save(any(User.class));
     }
 
     @Test

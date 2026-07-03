@@ -1,5 +1,7 @@
 package com.esports.platform.domain.user.service;
 
+import com.esports.platform.domain.user.client.KakaoOAuthClient;
+import com.esports.platform.domain.user.client.KakaoUserInfoResponse;
 import com.esports.platform.domain.user.dto.TokenResponse;
 import com.esports.platform.domain.user.entity.User;
 import com.esports.platform.global.auth.JwtProvider;
@@ -16,6 +18,7 @@ public class AuthService {
     private final UserService userService;
     private final JwtProvider jwtProvider;
     private final TokenBlacklistService tokenBlacklistService;
+    private final KakaoOAuthClient kakaoOAuthClient;
 
     public User signUp(String email, String password, String nickname) {
         return userService.signUp(email, password, nickname);
@@ -23,6 +26,22 @@ public class AuthService {
 
     public TokenResponse login(String email, String password) {
         User user = userService.login(email, password);
+        return issueTokens(user);
+    }
+
+    public TokenResponse kakaoLogin(String authorizationCode) {
+        String kakaoAccessToken = kakaoOAuthClient.requestAccessToken(authorizationCode);
+        KakaoUserInfoResponse userInfo = kakaoOAuthClient.requestUserInfo(kakaoAccessToken);
+
+        String kakaoId = String.valueOf(userInfo.id());
+        KakaoUserInfoResponse.KakaoAccount account = userInfo.kakaoAccount();
+        KakaoUserInfoResponse.KakaoProfile profile = account != null ? account.profile() : null;
+
+        String email = account != null && account.email() != null ? account.email() : "kakao_" + kakaoId + "@kakao.local";
+        String nickname = profile != null && profile.nickname() != null ? profile.nickname() : "카카오사용자" + kakaoId;
+        String profileImage = profile != null ? profile.profileImageUrl() : null;
+
+        User user = userService.findOrCreateKakaoUser(kakaoId, email, nickname, profileImage);
         return issueTokens(user);
     }
 

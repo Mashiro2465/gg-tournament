@@ -1,5 +1,6 @@
 package com.esports.platform.domain.user.controller;
 
+import com.esports.platform.domain.user.dto.KakaoLoginRequest;
 import com.esports.platform.domain.user.dto.LoginRequest;
 import com.esports.platform.domain.user.dto.RefreshTokenRequest;
 import com.esports.platform.domain.user.dto.SignUpRequest;
@@ -38,6 +39,12 @@ public class AuthController {
     public ResponseEntity<ApiResponse<TokenResponse>> login(@Valid @RequestBody LoginRequest request) {
         TokenResponse tokenResponse = authService.login(request.email(), request.password());
         return ResponseEntity.ok(ApiResponse.success(tokenResponse, "로그인이 완료되었습니다"));
+    }
+
+    @PostMapping("/kakao")
+    public ResponseEntity<ApiResponse<TokenResponse>> kakaoLogin(@Valid @RequestBody KakaoLoginRequest request) {
+        TokenResponse tokenResponse = authService.kakaoLogin(request.code());
+        return ResponseEntity.ok(ApiResponse.success(tokenResponse, "카카오 로그인이 완료되었습니다"));
     }
 
     @PostMapping("/refresh")
