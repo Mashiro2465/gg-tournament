@@ -28,7 +28,10 @@ public class SecurityConfig {
             "/api/auth/login",
             "/api/auth/kakao",
             "/api/auth/refresh",
-            "/api/payments/webhook"
+            "/api/payments/webhook",
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/v3/api-docs/**"
     };
 
     private final UserService userService;
