@@ -38,3 +38,7 @@ out/
 
 ### Env ###
 .env
+
+### Claude Code ###
+CLAUDE.md
+PLAN.md
