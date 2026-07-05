@@ -19,6 +19,7 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
+    KAKAO_LOGIN_FAILED(HttpStatus.BAD_GATEWAY, "카카오 로그인에 실패했습니다."),
 
     // User
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원을 찾을 수 없습니다."),
@@ -40,7 +41,19 @@ public enum ErrorCode {
     PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "결제 정보를 찾을 수 없습니다."),
     PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "결제 금액이 일치하지 않습니다."),
     PAYMENT_ALREADY_PROCESSED(HttpStatus.CONFLICT, "이미 처리된 결제입니다."),
-    INVALID_TOSS_SIGNATURE(HttpStatus.UNAUTHORIZED, "유효하지 않은 웹훅 서명입니다.");
+    PAYMENT_NOT_CONFIRMED(HttpStatus.BAD_REQUEST, "확정되지 않은 결제는 환불할 수 없습니다."),
+    PAYMENT_CONFIRM_FAILED(HttpStatus.BAD_GATEWAY, "결제 승인에 실패했습니다."),
+    PAYMENT_CANCEL_FAILED(HttpStatus.BAD_GATEWAY, "결제 취소(환불)에 실패했습니다."),
+    INVALID_TOSS_SIGNATURE(HttpStatus.UNAUTHORIZED, "유효하지 않은 웹훅 서명입니다."),
+
+    // Match
+    MATCH_NOT_FOUND(HttpStatus.NOT_FOUND, "경기를 찾을 수 없습니다."),
+    MATCH_ALREADY_FINISHED(HttpStatus.BAD_REQUEST, "이미 종료된 경기입니다."),
+    MATCH_INVALID_WINNER(HttpStatus.BAD_REQUEST, "해당 경기의 참가자만 승자로 지정할 수 있습니다."),
+
+    // Bracket
+    BRACKET_ALREADY_GENERATED(HttpStatus.CONFLICT, "이미 대진표가 생성된 대회입니다."),
+    BRACKET_NOT_ENOUGH_PARTICIPANTS(HttpStatus.BAD_REQUEST, "대진표를 생성하려면 최소 2명의 참가자가 필요합니다.");
 
     private final HttpStatus status;
     private final String message;
