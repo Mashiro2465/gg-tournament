@@ -20,13 +20,6 @@ repositories {
 ext {
 	set('queryDslVersion', "5.1.0")
 	set('jjwtVersion', "0.12.6")
-	set('springCloudAwsVersion', "3.2.1")
-}
-
-dependencyManagement {
-	imports {
-		mavenBom "io.awspring.cloud:spring-cloud-aws-dependencies:${springCloudAwsVersion}"
-	}
 }
 
 dependencies {
@@ -56,9 +49,6 @@ dependencies {
 	implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
 	runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
 	runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
-
-	// AWS S3
-	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
 
 	// Redis 분산 락
 	implementation 'org.redisson:redisson:3.37.0'
