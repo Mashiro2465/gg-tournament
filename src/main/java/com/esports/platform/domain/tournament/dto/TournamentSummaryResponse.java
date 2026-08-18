@@ -14,6 +14,7 @@ public record TournamentSummaryResponse(
         int maxParticipants,
         int currentParticipants,
         BigDecimal entryFee,
+        BigDecimal prizePool,
         TournamentStatus status,
         LocalDateTime registrationDeadline,
         LocalDateTime startAt
@@ -28,6 +29,7 @@ public record TournamentSummaryResponse(
                 tournament.getMaxParticipants(),
                 tournament.getCurrentParticipants(),
                 tournament.getEntryFee(),
+                tournament.getPrizePool(),
                 tournament.getStatus(),
                 tournament.getRegistrationDeadline(),
                 tournament.getStartAt()
