@@ -10,6 +10,7 @@ import com.esports.platform.domain.user.entity.User;
 import com.esports.platform.domain.user.service.UserService;
 import com.esports.platform.global.exception.BusinessException;
 import com.esports.platform.global.exception.ErrorCode;
+import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +45,10 @@ class ParticipantJoinExecutor {
         tournament.increaseParticipantCount();
 
         User user = userService.findById(userId);
-        return participantRepository.save(TournamentParticipant.create(tournament, user));
+        TournamentParticipant participant = TournamentParticipant.create(tournament, user);
+        if (tournament.getEntryFee().compareTo(BigDecimal.ZERO) == 0) {
+            participant.confirm();
+        }
+        return participantRepository.save(participant);
     }
 }

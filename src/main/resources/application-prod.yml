@@ -42,3 +42,7 @@ kakao:
 logging:
   level:
     com.esports.platform: info
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
