@@ -4,10 +4,10 @@ WORKDIR /app
 
 COPY gradlew settings.gradle build.gradle ./
 COPY gradle gradle
-RUN chmod +x gradlew && ./gradlew dependencies --no-daemon || true
+RUN chmod +x gradlew && ./gradlew dependencies --no-daemon
 
 COPY src src
-RUN ./gradlew build -x test --no-daemon
+RUN ./gradlew bootJar --no-daemon
 
 # 2단계: 실행
 FROM eclipse-temurin:17-jre-jammy
@@ -15,8 +15,12 @@ WORKDIR /app
 
 COPY --from=build /app/build/libs/*-SNAPSHOT.jar app.jar
 
-# Railway는 PORT 환경변수로 리스닝 포트를 주입한다
-ENV PORT=8080
+RUN groupadd --system app && useradd --system --gid app app
+
+ENV PORT=8080 \
+    JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75.0"
 EXPOSE 8080
 
-ENTRYPOINT ["sh", "-c", "java -Dserver.port=${PORT} -jar app.jar"]
+USER app
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
