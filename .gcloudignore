@@ -1,0 +1,16 @@
+.gcloudignore
+.git
+.github
+.gradle
+.idea
+.vscode
+.claude
+build
+out
+bin
+.env
+.env.prod
+*.iml
+HELP.md
+PLAN.md
+CLAUDE.md

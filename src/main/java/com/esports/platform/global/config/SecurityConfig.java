@@ -28,6 +28,8 @@ public class SecurityConfig {
             "/api/auth/kakao",
             "/api/auth/refresh",
             "/api/payments/webhook",
+            "/actuator/health",
+            "/actuator/health/**",
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/v3/api-docs/**"
