@@ -39,7 +39,7 @@ public class Settlement extends BaseTimeEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false)
+    @Column(name = "placement_rank", nullable = false)
     private int rank;
 
     @Column(name = "prize_amount", nullable = false, precision = 10, scale = 2)

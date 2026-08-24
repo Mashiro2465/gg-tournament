@@ -4,6 +4,10 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:5}
+      minimum-idle: 0
+      connection-timeout: 10000
 
   jpa:
     hibernate:
@@ -42,3 +46,7 @@ kakao:
 logging:
   level:
     com.esports.platform: info
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}

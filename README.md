@@ -163,29 +163,27 @@ Swagger UI: `http://localhost:8080/swagger-ui.html`
 - Java 17
 - Docker Desktop
 
-### 2. 환경변수 설정
-프로젝트 루트에 `.env` 파일 생성:
-```
-DB_URL=jdbc:mysql://localhost:3306/esports
-DB_USERNAME=root
-DB_PASSWORD=1234
-REDIS_HOST=localhost
-REDIS_PORT=6379
-JWT_SECRET=localSecretKeyMustBeAtLeast32Characters
-TOSS_CLIENT_KEY=test_ck_xxxxx
-TOSS_SECRET_KEY=test_sk_xxxxx
-KAKAO_CLIENT_ID=xxxxx
-KAKAO_CLIENT_SECRET=xxxxx
+### 2. Docker 실행 (MySQL + Redis)
+로컬 기본 설정은 `compose.yaml`과 일치하므로 별도 DB 환경변수 없이 실행할 수 있습니다.
+
+```powershell
+docker compose up -d --wait
 ```
 
-### 3. Docker 실행 (MySQL + Redis)
-```bash
-docker-compose up -d
+### 3. 선택 환경변수 설정
+결제·카카오 로그인을 테스트할 때만 현재 PowerShell 세션에 실제 테스트 키를 설정합니다.
+
+```powershell
+$env:JWT_SECRET="localSecretKeyMustBeAtLeast32Characters"
+$env:TOSS_SECRET_KEY="test_sk_xxxxx"
+$env:KAKAO_CLIENT_ID="xxxxx"
+$env:KAKAO_CLIENT_SECRET="xxxxx"
 ```
 
-### 4. 애플리케이션 실행
-```bash
-./gradlew bootRun
+### 4. 테스트 및 애플리케이션 실행
+```powershell
+.\gradlew.bat test
+.\gradlew.bat bootRun
 ```
 
 ### 5. Swagger 접속
