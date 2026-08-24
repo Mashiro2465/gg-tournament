@@ -296,7 +296,8 @@ class PaymentServiceTest {
     private Tournament createTournament(Long id, BigDecimal entryFee) {
         Tournament tournament = Tournament.create(
                 createUser(1L), "대회", "게임", TournamentFormat.SINGLE_ELIMINATION, 16,
-                entryFee, "{}", LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2)
+                entryFee, "{}", LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2),
+                LocalDateTime.now().plusDays(3)
         );
         ReflectionTestUtils.setField(tournament, "id", id);
         return tournament;

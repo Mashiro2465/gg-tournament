@@ -71,6 +71,9 @@ public class Tournament extends BaseTimeEntity {
     @Column(name = "start_at", nullable = false)
     private LocalDateTime startAt;
 
+    @Column(name = "end_at")
+    private LocalDateTime endAt;
+
     @Builder
     private Tournament(
             User host,
@@ -81,7 +84,8 @@ public class Tournament extends BaseTimeEntity {
             BigDecimal entryFee,
             String prizeStructure,
             LocalDateTime registrationDeadline,
-            LocalDateTime startAt
+            LocalDateTime startAt,
+            LocalDateTime endAt
     ) {
         this.host = host;
         this.title = title;
@@ -95,6 +99,7 @@ public class Tournament extends BaseTimeEntity {
         this.status = TournamentStatus.RECRUITING;
         this.registrationDeadline = registrationDeadline;
         this.startAt = startAt;
+        this.endAt = endAt;
     }
 
     public static Tournament create(
@@ -106,7 +111,8 @@ public class Tournament extends BaseTimeEntity {
             BigDecimal entryFee,
             String prizeStructure,
             LocalDateTime registrationDeadline,
-            LocalDateTime startAt
+            LocalDateTime startAt,
+            LocalDateTime endAt
     ) {
         return Tournament.builder()
                 .host(host)
@@ -118,6 +124,7 @@ public class Tournament extends BaseTimeEntity {
                 .prizeStructure(prizeStructure)
                 .registrationDeadline(registrationDeadline)
                 .startAt(startAt)
+                .endAt(endAt)
                 .build();
     }
 
@@ -131,7 +138,8 @@ public class Tournament extends BaseTimeEntity {
             int maxParticipants,
             String prizeStructure,
             LocalDateTime registrationDeadline,
-            LocalDateTime startAt
+            LocalDateTime startAt,
+            LocalDateTime endAt
     ) {
         this.title = title;
         this.gameType = gameType;
@@ -139,6 +147,7 @@ public class Tournament extends BaseTimeEntity {
         this.prizeStructure = prizeStructure;
         this.registrationDeadline = registrationDeadline;
         this.startAt = startAt;
+        this.endAt = endAt;
     }
 
     public void increaseParticipantCount() {

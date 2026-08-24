@@ -32,6 +32,9 @@ public record CreateTournamentRequest(
         LocalDateTime registrationDeadline,
 
         @NotNull(message = "대회 시작일은 필수입니다.") @Future(message = "대회 시작일은 현재 이후여야 합니다.")
-        LocalDateTime startAt
+        LocalDateTime startAt,
+
+        @NotNull(message = "대회 종료일은 필수입니다.") @Future(message = "대회 종료일은 현재 이후여야 합니다.")
+        LocalDateTime endAt
 ) {
 }

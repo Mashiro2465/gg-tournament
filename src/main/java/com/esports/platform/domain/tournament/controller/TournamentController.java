@@ -74,7 +74,8 @@ public class TournamentController {
                 request.entryFee(),
                 request.prizeStructure(),
                 request.registrationDeadline(),
-                request.startAt()
+                request.startAt(),
+                request.endAt()
         );
         return ResponseEntity.ok(ApiResponse.success(TournamentDetailResponse.from(tournament), "대회가 생성되었습니다"));
     }
@@ -93,7 +94,8 @@ public class TournamentController {
                 request.maxParticipants(),
                 request.prizeStructure(),
                 request.registrationDeadline(),
-                request.startAt()
+                request.startAt(),
+                request.endAt()
         );
         Tournament tournament = tournamentService.findById(id);
         return ResponseEntity.ok(ApiResponse.success(TournamentDetailResponse.from(tournament), "대회가 수정되었습니다"));

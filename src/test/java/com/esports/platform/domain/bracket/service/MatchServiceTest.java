@@ -265,7 +265,8 @@ class MatchServiceTest {
     private Tournament createTournament(Long id, Long hostId) {
         Tournament tournament = Tournament.create(
                 createUser(hostId), "대회", "게임", TournamentFormat.SINGLE_ELIMINATION, 16,
-                BigDecimal.ZERO, "{}", LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2)
+                BigDecimal.ZERO, "{}", LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2),
+                LocalDateTime.now().plusDays(3)
         );
         ReflectionTestUtils.setField(tournament, "id", id);
         return tournament;
