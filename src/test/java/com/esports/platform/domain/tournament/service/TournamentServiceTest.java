@@ -44,12 +44,40 @@ class TournamentServiceTest {
         Tournament result = tournamentService.create(
                 1L, "롤 초보자 대회", "리그오브레전드", TournamentFormat.SINGLE_ELIMINATION,
                 16, BigDecimal.valueOf(10000), "{\"1st\":50,\"2nd\":30,\"3rd\":20}",
-                LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2)
+                LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2),
+                LocalDateTime.now().plusDays(3)
         );
 
         assertThat(result.getTitle()).isEqualTo("롤 초보자 대회");
         assertThat(result.getHost()).isEqualTo(host);
         assertThat(result.getStatus()).isEqualTo(TournamentStatus.RECRUITING);
+    }
+
+    @Test
+    void 대회생성_참가마감이_시작과같거나늦으면_예외발생() {
+        LocalDateTime startAt = LocalDateTime.now().plusDays(2);
+
+        assertThatThrownBy(() -> tournamentService.create(
+                1L, "대회", "게임", TournamentFormat.SINGLE_ELIMINATION,
+                16, BigDecimal.ZERO, "{}", startAt, startAt, startAt.plusDays(1)
+        ))
+                .isInstanceOf(BusinessException.class)
+                .extracting("errorCode")
+                .isEqualTo(ErrorCode.INVALID_TOURNAMENT_SCHEDULE);
+    }
+
+    @Test
+    void 대회생성_종료가_시작과같거나빠르면_예외발생() {
+        LocalDateTime registrationDeadline = LocalDateTime.now().plusDays(1);
+        LocalDateTime startAt = registrationDeadline.plusDays(1);
+
+        assertThatThrownBy(() -> tournamentService.create(
+                1L, "대회", "게임", TournamentFormat.SINGLE_ELIMINATION,
+                16, BigDecimal.ZERO, "{}", registrationDeadline, startAt, startAt
+        ))
+                .isInstanceOf(BusinessException.class)
+                .extracting("errorCode")
+                .isEqualTo(ErrorCode.INVALID_TOURNAMENT_SCHEDULE);
     }
 
     @Test
@@ -68,7 +96,8 @@ class TournamentServiceTest {
         when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
 
         assertThatThrownBy(() -> tournamentService.update(
-                1L, 999L, "제목", "게임", 16, "{}", LocalDateTime.now(), LocalDateTime.now()
+                1L, 999L, "제목", "게임", 16, "{}", LocalDateTime.now(), LocalDateTime.now(),
+                LocalDateTime.now()
         ))
                 .isInstanceOf(BusinessException.class)
                 .extracting("errorCode")
@@ -81,11 +110,26 @@ class TournamentServiceTest {
         when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
 
         assertThatThrownBy(() -> tournamentService.update(
-                1L, 100L, "제목", "게임", 16, "{}", LocalDateTime.now(), LocalDateTime.now()
+                1L, 100L, "제목", "게임", 16, "{}", LocalDateTime.now(), LocalDateTime.now(),
+                LocalDateTime.now()
         ))
                 .isInstanceOf(BusinessException.class)
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.TOURNAMENT_ALREADY_CLOSED);
+    }
+
+    @Test
+    void 대회수정_일정순서가잘못되면_예외발생() {
+        Tournament tournament = createTournament(1L, 100L, TournamentStatus.RECRUITING);
+        when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
+        LocalDateTime startAt = LocalDateTime.now().plusDays(2);
+
+        assertThatThrownBy(() -> tournamentService.update(
+                1L, 100L, "제목", "게임", 16, "{}", startAt, startAt, startAt.plusDays(1)
+        ))
+                .isInstanceOf(BusinessException.class)
+                .extracting("errorCode")
+                .isEqualTo(ErrorCode.INVALID_TOURNAMENT_SCHEDULE);
     }
 
     @Test
@@ -139,7 +183,8 @@ class TournamentServiceTest {
     private Tournament createTournament(Long tournamentId, Long hostId, TournamentStatus status) {
         Tournament tournament = Tournament.create(
                 createUser(hostId), "대회", "게임", TournamentFormat.SINGLE_ELIMINATION, 16,
-                BigDecimal.ZERO, "{}", LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2)
+                BigDecimal.ZERO, "{}", LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2),
+                LocalDateTime.now().plusDays(3)
         );
         ReflectionTestUtils.setField(tournament, "id", tournamentId);
         ReflectionTestUtils.setField(tournament, "status", status);

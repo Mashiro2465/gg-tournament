@@ -21,6 +21,7 @@ public record TournamentDetailResponse(
         TournamentStatus status,
         LocalDateTime registrationDeadline,
         LocalDateTime startAt,
+        LocalDateTime endAt,
         LocalDateTime createdAt
 ) {
 
@@ -40,6 +41,7 @@ public record TournamentDetailResponse(
                 tournament.getStatus(),
                 tournament.getRegistrationDeadline(),
                 tournament.getStartAt(),
+                tournament.getEndAt(),
                 tournament.getCreatedAt()
         );
     }

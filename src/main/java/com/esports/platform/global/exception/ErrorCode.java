@@ -31,6 +31,7 @@ public enum ErrorCode {
     TOURNAMENT_NOT_HOST(HttpStatus.FORBIDDEN, "대회 주최자만 수행할 수 있는 작업입니다."),
     TOURNAMENT_ALREADY_CLOSED(HttpStatus.BAD_REQUEST, "이미 마감된 대회입니다."),
     TOURNAMENT_CAPACITY_EXCEEDED(HttpStatus.BAD_REQUEST, "참가 정원이 초과되었습니다."),
+    INVALID_TOURNAMENT_SCHEDULE(HttpStatus.BAD_REQUEST, "참가 마감일, 대회 시작일, 종료일의 순서를 확인해주세요."),
 
     // Participant
     PARTICIPANT_NOT_FOUND(HttpStatus.NOT_FOUND, "참가 정보를 찾을 수 없습니다."),
