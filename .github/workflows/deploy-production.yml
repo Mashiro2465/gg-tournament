@@ -94,7 +94,7 @@ jobs:
           .env.prod.example
           deploy/gcp/Caddyfile
           deploy/gcp/deploy-vm.sh
-          "${VM_NAME}:/tmp/"
+          "${VM_NAME}:~/"
           --project="${PROJECT_ID}"
           --zone="${ZONE}"
           --quiet
@@ -105,7 +105,7 @@ jobs:
           --project="${PROJECT_ID}"
           --zone="${ZONE}"
           --quiet
-          --command="chmod +x /tmp/deploy-vm.sh && /tmp/deploy-vm.sh"
+          --command="chmod +x ~/deploy-vm.sh && ~/deploy-vm.sh"
 
       - name: 공개 헬스 체크
         run: curl --fail --show-error --silent --retry 5 --retry-delay 5 https://34-47-65-133.sslip.io/actuator/health
