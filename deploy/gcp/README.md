@@ -69,3 +69,17 @@ docker compose --env-file .env.prod -f compose.prod.yaml exec mysql sh -c \
 ```
 
 무료 체험 종료 전에는 백업 후 VM, 디스크, 고정 IP, Artifact Registry 이미지를 삭제한다.
+
+## GitHub Actions 자동 배포
+
+`main` 브랜치에 변경이 반영되면 `.github/workflows/deploy-production.yml`이 다음 작업을 수행한다.
+
+1. Gradle 전체 테스트
+2. Cloud Build를 통한 API 이미지 빌드 및 업로드
+3. 운영 Compose 파일을 VM으로 전송
+4. OS Login 임시 SSH 키로 `deploy-vm.sh` 실행
+5. 공개 헬스 체크
+
+인증은 `github-actions/gg-tournament` Workload Identity Provider와
+`github-backend-deploy` 서비스 계정을 사용한다. 서비스 계정 키나 장기 SSH 키는 저장하지 않는다.
+실패 내역은 GitHub 저장소의 Actions 탭에서 확인한다.
