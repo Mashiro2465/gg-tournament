@@ -72,7 +72,10 @@ public class TournamentController {
                 request.format(),
                 request.maxParticipants(),
                 request.entryFee(),
+                request.prizePool(),
                 request.prizeStructure(),
+                request.description(),
+                request.rules(),
                 request.registrationDeadline(),
                 request.startAt(),
                 request.endAt()
@@ -92,7 +95,10 @@ public class TournamentController {
                 request.title(),
                 request.gameType(),
                 request.maxParticipants(),
+                request.prizePool(),
                 request.prizeStructure(),
+                request.description(),
+                request.rules(),
                 request.registrationDeadline(),
                 request.startAt(),
                 request.endAt()

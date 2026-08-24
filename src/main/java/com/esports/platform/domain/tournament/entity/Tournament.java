@@ -61,6 +61,12 @@ public class Tournament extends BaseTimeEntity {
     @Column(name = "prize_structure", columnDefinition = "json")
     private String prizeStructure;
 
+    @Column(columnDefinition = "text")
+    private String description;
+
+    @Column(columnDefinition = "text")
+    private String rules;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private TournamentStatus status;
@@ -82,7 +88,10 @@ public class Tournament extends BaseTimeEntity {
             TournamentFormat format,
             int maxParticipants,
             BigDecimal entryFee,
+            BigDecimal prizePool,
             String prizeStructure,
+            String description,
+            String rules,
             LocalDateTime registrationDeadline,
             LocalDateTime startAt,
             LocalDateTime endAt
@@ -94,8 +103,10 @@ public class Tournament extends BaseTimeEntity {
         this.maxParticipants = maxParticipants;
         this.currentParticipants = 0;
         this.entryFee = entryFee;
-        this.prizePool = BigDecimal.ZERO;
+        this.prizePool = prizePool;
         this.prizeStructure = prizeStructure;
+        this.description = description;
+        this.rules = rules;
         this.status = TournamentStatus.RECRUITING;
         this.registrationDeadline = registrationDeadline;
         this.startAt = startAt;
@@ -114,6 +125,27 @@ public class Tournament extends BaseTimeEntity {
             LocalDateTime startAt,
             LocalDateTime endAt
     ) {
+        return create(
+                host, title, gameType, format, maxParticipants, entryFee, BigDecimal.ZERO,
+                prizeStructure, "", "", registrationDeadline, startAt, endAt
+        );
+    }
+
+    public static Tournament create(
+            User host,
+            String title,
+            String gameType,
+            TournamentFormat format,
+            int maxParticipants,
+            BigDecimal entryFee,
+            BigDecimal prizePool,
+            String prizeStructure,
+            String description,
+            String rules,
+            LocalDateTime registrationDeadline,
+            LocalDateTime startAt,
+            LocalDateTime endAt
+    ) {
         return Tournament.builder()
                 .host(host)
                 .title(title)
@@ -121,7 +153,10 @@ public class Tournament extends BaseTimeEntity {
                 .format(format)
                 .maxParticipants(maxParticipants)
                 .entryFee(entryFee)
+                .prizePool(prizePool)
                 .prizeStructure(prizeStructure)
+                .description(description)
+                .rules(rules)
                 .registrationDeadline(registrationDeadline)
                 .startAt(startAt)
                 .endAt(endAt)
@@ -136,7 +171,10 @@ public class Tournament extends BaseTimeEntity {
             String title,
             String gameType,
             int maxParticipants,
+            BigDecimal prizePool,
             String prizeStructure,
+            String description,
+            String rules,
             LocalDateTime registrationDeadline,
             LocalDateTime startAt,
             LocalDateTime endAt
@@ -144,7 +182,10 @@ public class Tournament extends BaseTimeEntity {
         this.title = title;
         this.gameType = gameType;
         this.maxParticipants = maxParticipants;
+        this.prizePool = prizePool;
         this.prizeStructure = prizeStructure;
+        this.description = description;
+        this.rules = rules;
         this.registrationDeadline = registrationDeadline;
         this.startAt = startAt;
         this.endAt = endAt;

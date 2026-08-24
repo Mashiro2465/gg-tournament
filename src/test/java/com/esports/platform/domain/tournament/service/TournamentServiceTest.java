@@ -43,7 +43,8 @@ class TournamentServiceTest {
 
         Tournament result = tournamentService.create(
                 1L, "롤 초보자 대회", "리그오브레전드", TournamentFormat.SINGLE_ELIMINATION,
-                16, BigDecimal.valueOf(10000), "{\"1st\":50,\"2nd\":30,\"3rd\":20}",
+                16, BigDecimal.valueOf(10000), BigDecimal.valueOf(500000),
+                "{\"1st\":50,\"2nd\":30,\"3rd\":20}", "대회 소개", "대회 규칙",
                 LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2),
                 LocalDateTime.now().plusDays(3)
         );
@@ -51,6 +52,9 @@ class TournamentServiceTest {
         assertThat(result.getTitle()).isEqualTo("롤 초보자 대회");
         assertThat(result.getHost()).isEqualTo(host);
         assertThat(result.getStatus()).isEqualTo(TournamentStatus.RECRUITING);
+        assertThat(result.getPrizePool()).isEqualByComparingTo("500000");
+        assertThat(result.getDescription()).isEqualTo("대회 소개");
+        assertThat(result.getRules()).isEqualTo("대회 규칙");
     }
 
     @Test
@@ -59,7 +63,8 @@ class TournamentServiceTest {
 
         assertThatThrownBy(() -> tournamentService.create(
                 1L, "대회", "게임", TournamentFormat.SINGLE_ELIMINATION,
-                16, BigDecimal.ZERO, "{}", startAt, startAt, startAt.plusDays(1)
+                16, BigDecimal.ZERO, BigDecimal.ZERO, "{}", "소개", "규칙",
+                startAt, startAt, startAt.plusDays(1)
         ))
                 .isInstanceOf(BusinessException.class)
                 .extracting("errorCode")
@@ -73,7 +78,8 @@ class TournamentServiceTest {
 
         assertThatThrownBy(() -> tournamentService.create(
                 1L, "대회", "게임", TournamentFormat.SINGLE_ELIMINATION,
-                16, BigDecimal.ZERO, "{}", registrationDeadline, startAt, startAt
+                16, BigDecimal.ZERO, BigDecimal.ZERO, "{}", "소개", "규칙",
+                registrationDeadline, startAt, startAt
         ))
                 .isInstanceOf(BusinessException.class)
                 .extracting("errorCode")
@@ -96,7 +102,8 @@ class TournamentServiceTest {
         when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
 
         assertThatThrownBy(() -> tournamentService.update(
-                1L, 999L, "제목", "게임", 16, "{}", LocalDateTime.now(), LocalDateTime.now(),
+                1L, 999L, "제목", "게임", 16, BigDecimal.ZERO, "{}", "소개", "규칙",
+                LocalDateTime.now(), LocalDateTime.now(),
                 LocalDateTime.now()
         ))
                 .isInstanceOf(BusinessException.class)
@@ -110,7 +117,8 @@ class TournamentServiceTest {
         when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
 
         assertThatThrownBy(() -> tournamentService.update(
-                1L, 100L, "제목", "게임", 16, "{}", LocalDateTime.now(), LocalDateTime.now(),
+                1L, 100L, "제목", "게임", 16, BigDecimal.ZERO, "{}", "소개", "규칙",
+                LocalDateTime.now(), LocalDateTime.now(),
                 LocalDateTime.now()
         ))
                 .isInstanceOf(BusinessException.class)
@@ -125,7 +133,8 @@ class TournamentServiceTest {
         LocalDateTime startAt = LocalDateTime.now().plusDays(2);
 
         assertThatThrownBy(() -> tournamentService.update(
-                1L, 100L, "제목", "게임", 16, "{}", startAt, startAt, startAt.plusDays(1)
+                1L, 100L, "제목", "게임", 16, BigDecimal.ZERO, "{}", "소개", "규칙",
+                startAt, startAt, startAt.plusDays(1)
         ))
                 .isInstanceOf(BusinessException.class)
                 .extracting("errorCode")
