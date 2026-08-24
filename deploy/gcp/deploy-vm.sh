@@ -5,17 +5,18 @@ readonly PROJECT_ID="gg-tournament-prod-2465"
 readonly EXTERNAL_IP="34.47.65.133"
 readonly REGISTRY="asia-northeast3-docker.pkg.dev"
 readonly APP_DIR="/opt/gg-tournament"
+readonly SOURCE_DIR="${HOME}"
 
 sudo install -d -m 750 "${APP_DIR}/deploy/gcp"
-sudo install -m 640 /tmp/compose.prod.yaml "${APP_DIR}/compose.prod.yaml"
-sudo install -m 640 /tmp/Caddyfile "${APP_DIR}/deploy/gcp/Caddyfile"
+sudo install -m 640 "${SOURCE_DIR}/compose.prod.yaml" "${APP_DIR}/compose.prod.yaml"
+sudo install -m 640 "${SOURCE_DIR}/Caddyfile" "${APP_DIR}/deploy/gcp/Caddyfile"
 
 if ! sudo test -f "${APP_DIR}/.env.prod"; then
   mysql_password="$(openssl rand -hex 24)"
   mysql_root_password="$(openssl rand -hex 24)"
   jwt_secret="$(openssl rand -hex 32)"
 
-  sudo cp /tmp/.env.prod.example "${APP_DIR}/.env.prod"
+  sudo cp "${SOURCE_DIR}/.env.prod.example" "${APP_DIR}/.env.prod"
   sudo sed -i "s#^APP_IMAGE=.*#APP_IMAGE=${REGISTRY}/${PROJECT_ID}/gg-tournament/api:latest#" "${APP_DIR}/.env.prod"
   sudo sed -i "s#^APP_DOMAIN=.*#APP_DOMAIN=http://${EXTERNAL_IP}#" "${APP_DIR}/.env.prod"
   sudo sed -i "s#^MYSQL_PASSWORD=.*#MYSQL_PASSWORD=${mysql_password}#" "${APP_DIR}/.env.prod"
@@ -25,14 +26,18 @@ if ! sudo test -f "${APP_DIR}/.env.prod"; then
   sudo chmod 600 "${APP_DIR}/.env.prod"
 fi
 
+registry_token_file="$(mktemp)"
+trap 'rm -f "${registry_token_file}"' EXIT
+
 curl -fsS \
   -H "Metadata-Flavor: Google" \
   http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token \
-  -o /tmp/registry-token.json
+  -o "${registry_token_file}"
 
-access_token="$(python3 -c 'import json; print(json.load(open("/tmp/registry-token.json"))["access_token"])')"
+access_token="$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["access_token"])' "${registry_token_file}")"
 printf '%s' "${access_token}" | sudo docker login -u oauth2accesstoken --password-stdin "https://${REGISTRY}"
-rm -f /tmp/registry-token.json
+rm -f "${registry_token_file}"
+trap - EXIT
 
 cd "${APP_DIR}"
 sudo docker compose --env-file .env.prod -f compose.prod.yaml pull
