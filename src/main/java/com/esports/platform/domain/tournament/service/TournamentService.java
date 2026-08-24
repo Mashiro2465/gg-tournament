@@ -34,7 +34,10 @@ public class TournamentService {
             TournamentFormat format,
             int maxParticipants,
             BigDecimal entryFee,
+            BigDecimal prizePool,
             String prizeStructure,
+            String description,
+            String rules,
             LocalDateTime registrationDeadline,
             LocalDateTime startAt,
             LocalDateTime endAt
@@ -42,8 +45,8 @@ public class TournamentService {
         validateSchedule(registrationDeadline, startAt, endAt);
         User host = userService.findById(hostId);
         Tournament tournament = Tournament.create(
-                host, title, gameType, format, maxParticipants, entryFee,
-                prizeStructure, registrationDeadline, startAt, endAt
+                host, title, gameType, format, maxParticipants, entryFee, prizePool,
+                prizeStructure, description, rules, registrationDeadline, startAt, endAt
         );
         return tournamentRepository.save(tournament);
     }
@@ -68,7 +71,10 @@ public class TournamentService {
             String title,
             String gameType,
             int maxParticipants,
+            BigDecimal prizePool,
             String prizeStructure,
+            String description,
+            String rules,
             LocalDateTime registrationDeadline,
             LocalDateTime startAt,
             LocalDateTime endAt
@@ -77,7 +83,10 @@ public class TournamentService {
         validateHost(tournament, hostId);
         validateRecruiting(tournament);
         validateSchedule(registrationDeadline, startAt, endAt);
-        tournament.updateDetails(title, gameType, maxParticipants, prizeStructure, registrationDeadline, startAt, endAt);
+        tournament.updateDetails(
+                title, gameType, maxParticipants, prizePool, prizeStructure,
+                description, rules, registrationDeadline, startAt, endAt
+        );
     }
 
     @Transactional
