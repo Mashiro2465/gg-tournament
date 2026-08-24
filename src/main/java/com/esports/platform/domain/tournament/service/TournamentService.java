@@ -36,12 +36,14 @@ public class TournamentService {
             BigDecimal entryFee,
             String prizeStructure,
             LocalDateTime registrationDeadline,
-            LocalDateTime startAt
+            LocalDateTime startAt,
+            LocalDateTime endAt
     ) {
+        validateSchedule(registrationDeadline, startAt, endAt);
         User host = userService.findById(hostId);
         Tournament tournament = Tournament.create(
                 host, title, gameType, format, maxParticipants, entryFee,
-                prizeStructure, registrationDeadline, startAt
+                prizeStructure, registrationDeadline, startAt, endAt
         );
         return tournamentRepository.save(tournament);
     }
@@ -68,12 +70,14 @@ public class TournamentService {
             int maxParticipants,
             String prizeStructure,
             LocalDateTime registrationDeadline,
-            LocalDateTime startAt
+            LocalDateTime startAt,
+            LocalDateTime endAt
     ) {
         Tournament tournament = findById(tournamentId);
         validateHost(tournament, hostId);
         validateRecruiting(tournament);
-        tournament.updateDetails(title, gameType, maxParticipants, prizeStructure, registrationDeadline, startAt);
+        validateSchedule(registrationDeadline, startAt, endAt);
+        tournament.updateDetails(title, gameType, maxParticipants, prizeStructure, registrationDeadline, startAt, endAt);
     }
 
     @Transactional
@@ -101,6 +105,16 @@ public class TournamentService {
     private void validateRecruiting(Tournament tournament) {
         if (tournament.getStatus() != TournamentStatus.RECRUITING) {
             throw new BusinessException(ErrorCode.TOURNAMENT_ALREADY_CLOSED);
+        }
+    }
+
+    private void validateSchedule(
+            LocalDateTime registrationDeadline,
+            LocalDateTime startAt,
+            LocalDateTime endAt
+    ) {
+        if (!registrationDeadline.isBefore(startAt) || !startAt.isBefore(endAt)) {
+            throw new BusinessException(ErrorCode.INVALID_TOURNAMENT_SCHEDULE);
         }
     }
 }
