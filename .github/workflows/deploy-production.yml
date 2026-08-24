@@ -65,7 +65,7 @@ jobs:
         env:
           DB_USERNAME: root
           DB_PASSWORD: test-password
-        run: ./gradlew test
+        run: bash ./gradlew test
 
       - name: Google Cloud 인증
         uses: google-github-actions/auth@v3
