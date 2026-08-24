@@ -1,0 +1,109 @@
+name: 백엔드 운영 배포
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: backend-production
+  cancel-in-progress: false
+
+env:
+  PROJECT_ID: gg-tournament-prod-2465
+  REGION: asia-northeast3
+  ZONE: asia-northeast3-a
+  VM_NAME: gg-tournament-vm
+  IMAGE: asia-northeast3-docker.pkg.dev/gg-tournament-prod-2465/gg-tournament/api:latest
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test-password
+          MYSQL_DATABASE: esports_platform
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -ptest-password --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=10
+
+    steps:
+      - name: 소스 체크아웃
+        uses: actions/checkout@v6
+
+      - name: Java 설정
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Gradle 설정
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: 테스트
+        env:
+          DB_USERNAME: root
+          DB_PASSWORD: test-password
+        run: ./gradlew test
+
+      - name: Google Cloud 인증
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: projects/321099608458/locations/global/workloadIdentityPools/github-actions/providers/gg-tournament
+          service_account: github-backend-deploy@gg-tournament-prod-2465.iam.gserviceaccount.com
+
+      - name: Google Cloud CLI 설정
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: 컨테이너 이미지 빌드
+        run: >-
+          gcloud builds submit
+          --project="${PROJECT_ID}"
+          --region="${REGION}"
+          --tag="${IMAGE}"
+          .
+
+      - name: 배포 파일 전송
+        run: >-
+          gcloud compute scp
+          compose.prod.yaml
+          .env.prod.example
+          deploy/gcp/Caddyfile
+          deploy/gcp/deploy-vm.sh
+          "${VM_NAME}:/tmp/"
+          --project="${PROJECT_ID}"
+          --zone="${ZONE}"
+          --quiet
+
+      - name: VM 재배포
+        run: >-
+          gcloud compute ssh "${VM_NAME}"
+          --project="${PROJECT_ID}"
+          --zone="${ZONE}"
+          --quiet
+          --command="chmod +x /tmp/deploy-vm.sh && /tmp/deploy-vm.sh"
+
+      - name: 공개 헬스 체크
+        run: curl --fail --show-error --silent --retry 5 --retry-delay 5 https://34-47-65-133.sslip.io/actuator/health

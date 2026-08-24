@@ -39,6 +39,7 @@ out/
 ### Env ###
 .env
 .env.prod
+gha-creds-*.json
 
 ### Claude Code ###
 CLAUDE.md
