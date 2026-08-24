@@ -4,7 +4,9 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record UpdateTournamentRequest(
@@ -17,7 +19,16 @@ public record UpdateTournamentRequest(
         @Min(value = 2, message = "참가 인원은 최소 2명 이상이어야 합니다.")
         int maxParticipants,
 
+        @NotNull(message = "상금은 필수입니다.") @PositiveOrZero(message = "상금은 0 이상이어야 합니다.")
+        BigDecimal prizePool,
+
         String prizeStructure,
+
+        @NotBlank(message = "대회 소개는 필수입니다.") @Size(max = 5000, message = "대회 소개는 5000자 이하여야 합니다.")
+        String description,
+
+        @NotBlank(message = "대회 규칙은 필수입니다.") @Size(max = 5000, message = "대회 규칙은 5000자 이하여야 합니다.")
+        String rules,
 
         @NotNull(message = "참가 마감일은 필수입니다.") @Future(message = "참가 마감일은 현재 이후여야 합니다.")
         LocalDateTime registrationDeadline,
