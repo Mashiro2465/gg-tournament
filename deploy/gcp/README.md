@@ -75,7 +75,7 @@ docker compose --env-file .env.prod -f compose.prod.yaml exec mysql sh -c \
 `main` 브랜치에 변경이 반영되면 `.github/workflows/deploy-production.yml`이 다음 작업을 수행한다.
 
 1. Gradle 전체 테스트
-2. Cloud Build를 통한 API 이미지 빌드 및 업로드
+2. GitHub 러너에서 API 이미지를 빌드해 Artifact Registry에 업로드
 3. 운영 Compose 파일을 VM으로 전송
 4. OS Login 임시 SSH 키로 `deploy-vm.sh` 실행
 5. 공개 헬스 체크
